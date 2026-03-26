@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gbs-bg-primary text-gbs-text-primary antialiased min-h-screen text-[15px];
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .no-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gbs-bg-secondary;
+  }
+  .no-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gbs-border-light rounded-[3px];
+  }
+  .no-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gbs-text-muted;
+  }
+}
