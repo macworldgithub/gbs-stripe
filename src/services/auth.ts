@@ -68,17 +68,28 @@ export const authService = {
   },
 
   // Get auth token
+  // In auth.ts
   getToken: () => {
-    // For testing, return hardcoded token if no token exists
-    const existingToken = localStorage.getItem("auth_token");
-    if (!existingToken) {
-      const hardcodedToken =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OWM0Yzk2NWU0ZGNjMzdlOWFkYWI0M2IiLCJlbWFpbCI6ImpvaG5kb2VAZ21haWwuY29tIiwicGVybWlzc2lvbnMiOlt7Im5hbWUiOiJkaXJlY3RvcnlfYWNjZXNzX2Z1bGwiLCJ2YWx1ZSI6dHJ1ZX0seyJuYW1lIjoibWVzc2FnaW5nXzF0bzFfdW5saW1pdGVkIiwidmFsdWUiOnRydWV9LHsibmFtZSI6Im5vdGlmaWNhdGlvbl9jdXN0b20iLCJ2YWx1ZSI6dHJ1ZX0seyJuYW1lIjoiZ3JvdXBfcGFydGljaXBhdGlvbl9mdWxsIiwidmFsdWUiOnRydWV9LHsibmFtZSI6Im5ldHdvcmtpbmdfYnVzaW5lc3MiLCJ2YWx1ZSI6dHJ1ZX0seyJuYW1lIjoiYW5hbHl0aWNzX2Jhc2ljIiwidmFsdWUiOnRydWV9LHsibmFtZSI6InN1cHBvcnRfcHJpb3JpdHkiLCJ2YWx1ZSI6dHJ1ZX0seyJuYW1lIjoibWVtYmVyc2hpcF9waW5faGF0IiwidmFsdWUiOmZhbHNlfSx7Im5hbWUiOiJnaWZ0X2JveCIsInZhbHVlIjp0cnVlfSx7Im5hbWUiOiJzcG9ydHNfY29tcGV0aXRpb25zIiwidmFsdWUiOnRydWV9LHsibmFtZSI6ImRyaW5rc19lZGl0X3ZpcCIsInZhbHVlIjp0cnVlfSx7Im5hbWUiOiJldmVudF90aWNrZXRzIiwidmFsdWUiOjF9LHsibmFtZSI6Im1lbWJlcl9pbnRyb2R1Y3Rpb25zIiwidmFsdWUiOjB9LHsibmFtZSI6InRhaWxvcmVkX2V2ZW50cyIsInZhbHVlIjowfSx7Im5hbWUiOiJnZW9yZ2Vfc2FtaW9zX2FjY2VzcyIsInZhbHVlIjpmYWxzZX1dLCJpYXQiOjE3NzQ1MjUzODd9.M0XV43RRK-KCvCudmyPbGKSR3qdM5UWbyghIWg-Hrr0";
-      localStorage.setItem("auth_token", hardcodedToken);
-      console.log("Hardcoded auth token set for testing");
-      return hardcodedToken;
+    // First priority: Check if we already have it from query param (already saved)
+    let token = localStorage.getItem("auth_token");
+
+    // If you want to be extra safe, you can also re-check URL on every call (optional)
+    if (!token) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get("token");
+      if (urlToken) {
+        token = urlToken;
+        localStorage.setItem("auth_token", token);
+      }
     }
-    return existingToken;
+
+    if (!token) {
+      // fallback to hardcoded test token (only for development)
+      token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+      localStorage.setItem("auth_token", token);
+    }
+
+    return token;
   },
 
   // Check if user is authenticated

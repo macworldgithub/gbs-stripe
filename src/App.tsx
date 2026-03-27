@@ -105,21 +105,43 @@ initializeTestAuth();
 
 function HomePage() {
   const [roleId, setRoleId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const receivedRoleId = urlParams.get("roleId");
 
-    console.log("📥 Received roleId from URL query param:", receivedRoleId);
+    const receivedRoleId = urlParams.get("roleId");
+    const receivedToken = urlParams.get("token");
+
+    console.log("📥 Received roleId from URL:", receivedRoleId);
+    console.log(
+      "📥 Received token from URL:",
+      receivedToken
+        ? "✅ Token present (length: " + receivedToken.length + ")"
+        : "❌ No token",
+    );
 
     if (!receivedRoleId) {
-      setError("No plan ID received. Please open the app with ?roleId=xxx");
-    } else {
-      setRoleId(receivedRoleId);
+      setError("No plan ID (roleId) received. Please open with ?roleId=xxx");
+      return;
+    }
+
+    if (!receivedToken) {
+      console.warn(
+        "⚠️ No token received in query params. Falling back to localStorage/test token.",
+      );
+    }
+
+    setRoleId(receivedRoleId);
+    setToken(receivedToken);
+
+    // 🔥 Important: If token is passed, store it in localStorage so authService can use it
+    if (receivedToken) {
+      localStorage.setItem("auth_token", receivedToken);
+      console.log("✅ Token saved to localStorage from query param");
     }
   }, []);
-
   if (error) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
