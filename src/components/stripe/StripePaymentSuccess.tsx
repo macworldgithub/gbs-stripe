@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { FiCheck, FiArrowRight, FiHome, FiPackage } from "react-icons/fi";
+import { FiCheck, FiHome, FiPackage } from "react-icons/fi";
 import { stripeService } from "../../services/stripe";
 import { userPackageApi } from "../../services/api";
 

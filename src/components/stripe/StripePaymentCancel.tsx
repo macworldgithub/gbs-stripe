@@ -45,7 +45,25 @@ export default function StripePaymentCancel() {
       </div>
     );
   }
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-600 mb-2">
+            Something went wrong
+          </h2>
+          <p className="text-gbs-text-muted mb-4">{error}</p>
 
+          <button
+            onClick={() => navigate("/stripe")}
+            className="px-4 py-2 bg-gbs-bg-card border border-gbs-border rounded-md text-sm font-semibold"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-6 max-w-md mx-auto">
       <div className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center animate-scale-in">
