@@ -16,17 +16,19 @@ import StripePaymentCancel from "./components/stripe/StripePaymentCancel";
 initializeTestAuth();
 
 function HomePage() {
-  const [planId, setPlanId] = useState<string | null>(null);
+  const [roleId, setRoleId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const receivedPlanId = urlParams.get("planId");
+    const receivedRoleId = urlParams.get("roleId"); // ← Changed from planId
 
-    if (!receivedPlanId) {
+    console.log("Received roleId from URL:", receivedRoleId); // Debug log
+
+    if (!receivedRoleId) {
       setError("No plan ID received. Please select a plan from the app.");
     } else {
-      setPlanId(receivedPlanId);
+      setRoleId(receivedRoleId);
     }
   }, []);
 
@@ -52,11 +54,11 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {planId && (
+      {roleId && (
         <PaymentModal
           isOpen={true}
-          onClose={() => {}} // Not closable if opened from app
-          planId={planId}
+          onClose={() => {}}
+          planId={roleId} // ← Passing roleId as planId to modal
         />
       )}
     </div>

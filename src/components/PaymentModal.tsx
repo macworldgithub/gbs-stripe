@@ -203,7 +203,7 @@ import { stripeService } from "../services/stripe";
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  planId: string;
+  planId: string; // Keep this name (it's used internally)
 }
 
 export default function PaymentModal({
