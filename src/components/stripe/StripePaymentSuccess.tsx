@@ -12,19 +12,22 @@ export default function StripePaymentSuccess() {
   const [activePackage, setActivePackage] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const sessionId = searchParams.get("session_id");
+  const roleId = searchParams.get("roleId");
+  const token = searchParams.get("token");
 
   useEffect(() => {
-    if (!sessionId) {
-      setError("No payment session found.");
+    if (!roleId || !token) {
+      setError(
+        "Missing required parameters. Please select a plan from the app.",
+      );
       setLoading(false);
       return;
     }
 
     const verifySuccess = async () => {
       try {
-        // Call backend success endpoint
-        await paymentsApi.getPaymentSuccess(sessionId);
+        // Call backend success endpoint with roleId instead of sessionId
+        await paymentsApi.getPaymentSuccess(roleId);
 
         // Get latest active package
         const packageData = await userPackageApi.getActivePackage();
@@ -38,7 +41,7 @@ export default function StripePaymentSuccess() {
     };
 
     verifySuccess();
-  }, [sessionId]);
+  }, [roleId, token]);
 
   if (loading) {
     return (
