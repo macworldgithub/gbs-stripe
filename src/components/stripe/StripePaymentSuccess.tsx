@@ -1,12 +1,7 @@
 // src/components/stripe/StripePaymentSuccess.tsx
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import {
-  FiCheckCircle,
-  FiArrowLeft,
-  FiCalendar,
-  FiAward,
-} from "react-icons/fi";
+import { FiCheckCircle, FiAward } from "react-icons/fi";
 import { paymentsApi, userPackageApi } from "../../services/api";
 
 export default function StripePaymentSuccess() {
@@ -53,6 +48,26 @@ export default function StripePaymentSuccess() {
           <p className="mt-6 text-zinc-400 text-lg">
             Confirming your payment...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-6">
+          <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FiCheckCircle className="text-3xl text-red-500" />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-4">Payment Status</h1>
+          <p className="text-zinc-400 mb-8">{error}</p>
+          <button
+            onClick={() => navigate("/")}
+            className="bg-red-600 hover:bg-red-700 transition px-8 py-3 rounded-xl font-medium"
+          >
+            Go to Dashboard
+          </button>
         </div>
       </div>
     );
