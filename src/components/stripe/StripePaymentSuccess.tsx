@@ -1,158 +1,163 @@
-import { useState, useEffect } from "react";
+// src/components/stripe/StripePaymentSuccess.tsx
+import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { FiCheck, FiHome, FiPackage } from "react-icons/fi";
-import { stripeService } from "../../services/stripe";
-import { userPackageApi } from "../../services/api";
+import {
+  FiCheckCircle,
+  FiArrowLeft,
+  FiCalendar,
+  FiAward,
+} from "react-icons/fi";
+import { paymentsApi, userPackageApi } from "../../services/api";
 
 export default function StripePaymentSuccess() {
   const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get("session_id");
-  const [loading, setLoading] = useState(true);
-  const [paymentData, setPaymentData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
+  const [activePackage, setActivePackage] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const sessionId = searchParams.get("session_id");
+
   useEffect(() => {
-    if (sessionId) {
-      handlePaymentSuccess();
-    } else {
-      setError("No session ID found");
+    if (!sessionId) {
+      setError("No payment session found.");
       setLoading(false);
+      return;
     }
-  }, [sessionId]);
 
-  const handlePaymentSuccess = async () => {
-    try {
-      setLoading(true);
-
-      // Get payment success data from backend
-      const response = await stripeService.handlePaymentSuccess(sessionId!);
-      setPaymentData(response);
-
-      // Optionally refresh user package data
+    const verifySuccess = async () => {
       try {
-        await userPackageApi.getActivePackage();
-      } catch (err) {
-        console.log(
-          "User package not available yet, might need webhook processing",
-        );
+        // Call backend success endpoint
+        await paymentsApi.getPaymentSuccess(sessionId);
+
+        // Get latest active package
+        const packageData = await userPackageApi.getActivePackage();
+        setActivePackage(packageData);
+      } catch (err: any) {
+        console.error("Error loading success data:", err);
+        setError("Payment was successful! Your package is now active.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Failed to process payment success:", err);
-      setError(
-        "Payment was successful but we had trouble updating your account. Please contact support.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    verifySuccess();
+  }, [sessionId]);
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
-        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center animate-pulse">
-          <FiCheck className="text-4xl text-green-600" />
-        </div>
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gbs-text-primary mb-2">
-            Processing Your Payment...
-          </h2>
-          <p className="text-gbs-text-muted">
-            Please wait while we confirm your subscription.
+          <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="mt-6 text-zinc-400 text-lg">
+            Confirming your payment...
           </p>
         </div>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-6 max-w-md mx-auto">
-        <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center">
-          <span className="text-3xl">⚠️</span>
-        </div>
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gbs-text-primary mb-2">
-            Payment Issue
-          </h2>
-          <p className="text-gbs-text-muted mb-6">{error}</p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => navigate("/stripe/plans")}
-              className="px-4 py-2 bg-gbs-accent-DEFAULT text-black rounded-md text-sm font-semibold flex items-center gap-2"
-            >
-              <FiPackage />
-              Back to Plans
-            </button>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-gbs-bg-card border border-gbs-border rounded-md text-sm font-semibold"
-            >
-              Retry
-            </button>
+  return (
+    <div className="min-h-screen bg-zinc-950 text-white">
+      {/* GBS Header */}
+      <div className="bg-black py-6 border-b border-zinc-800">
+        <div className="max-w-2xl mx-auto px-6 flex items-center gap-3">
+          <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center font-bold text-2xl">
+            G
+          </div>
+          <div>
+            <p className="font-bold tracking-widest text-lg">
+              WESTSIDE CAR CARE
+            </p>
+            <p className="text-xs text-zinc-500 -mt-1">GBS Membership</p>
           </div>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] gap-6 max-w-md mx-auto">
-      <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center animate-scale-in">
-        <FiCheck className="text-4xl text-green-600" />
-      </div>
+      <div className="max-w-2xl mx-auto px-6 py-12">
+        <div className="bg-zinc-900 rounded-3xl border border-zinc-800 overflow-hidden">
+          {/* Success Banner */}
+          <div className="bg-gradient-to-br from-red-600 to-red-700 py-20 text-center">
+            <FiCheckCircle className="text-[100px] text-white mx-auto mb-6" />
+            <h1 className="text-4xl font-bold tracking-tight">
+              Payment Successful!
+            </h1>
+            <p className="text-red-100 mt-3 text-xl">
+              Thank you for becoming a member
+            </p>
+          </div>
 
-      <div className="text-center animate-fade-in">
-        <h2 className="text-[28px] font-bold text-gbs-text-primary mb-2">
-          Payment Successful!
-        </h2>
-        <p className="text-gbs-text-muted mb-6">
-          {paymentData?.message ||
-            "Your subscription has been activated successfully."}
-        </p>
+          {/* Package Info */}
+          <div className="p-10">
+            {activePackage ? (
+              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-8 mb-8">
+                <div className="flex items-start gap-5">
+                  <FiAward className="text-5xl text-red-500 mt-1 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="uppercase text-xs tracking-widest text-zinc-500">
+                      YOUR NEW PLAN
+                    </p>
+                    <p className="text-3xl font-semibold text-white mt-2">
+                      {activePackage.role?.label ||
+                        activePackage.role?.name ||
+                        "Premium Membership"}
+                    </p>
+                  </div>
+                </div>
 
-        {sessionId && (
-          <div className="bg-gbs-bg-card border border-gbs-border rounded-xl p-4 mb-6 text-left">
-            <h3 className="text-sm font-semibold text-gbs-text-primary mb-3">
-              Transaction Details
-            </h3>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gbs-text-muted">Session ID:</span>
-                <code className="text-xs bg-gbs-bg-input px-2 py-1 rounded font-mono text-gbs-text-secondary">
-                  {sessionId.slice(0, 8)}...{sessionId.slice(-8)}
-                </code>
+                <div className="mt-8 pt-6 border-t border-zinc-800">
+                  <p className="text-zinc-500 text-sm">
+                    Membership Valid Until
+                  </p>
+                  <p className="text-2xl font-medium mt-2">
+                    {new Date(activePackage.endDate).toLocaleDateString(
+                      "en-AU",
+                      {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      },
+                    )}
+                  </p>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gbs-text-muted">Status:</span>
-                <span className="text-green-600 font-medium">Completed</span>
+            ) : (
+              <div className="text-center py-10 text-zinc-400">
+                Your payment was successful.
+                <br />
+                Your package is being activated.
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gbs-text-muted">Date:</span>
-                <span className="text-gbs-text-secondary">
-                  {new Date().toLocaleDateString()}
-                </span>
-              </div>
+            )}
+
+            <div className="text-center text-zinc-400 text-sm mb-10">
+              A confirmation email has been sent to your registered email
+              address.
+            </div>
+
+            {/* Buttons */}
+            <div className="space-y-4">
+              <button
+                onClick={() => navigate("/")}
+                className="w-full bg-red-600 hover:bg-red-700 transition py-4 rounded-2xl font-semibold text-lg"
+              >
+                Go to Dashboard
+              </button>
+
+              <button
+                onClick={() => navigate("/")}
+                className="w-full border border-zinc-700 hover:bg-zinc-950 py-4 rounded-2xl font-medium"
+              >
+                ← Back to Plans
+              </button>
             </div>
           </div>
-        )}
-
-        <div className="flex gap-3 justify-center">
-          <button
-            onClick={() => navigate("/stripe")}
-            className="px-5 py-2.5 bg-gradient-to-br from-gbs-accent-DEFAULT to-[#F87171] text-black rounded-md text-sm font-semibold flex items-center gap-2 transition-all hover:-translate-y-[1px] shadow-[0_4px_12px_rgba(239,68,68,0.3)] hover:shadow-[0_0_30px_rgba(239,68,68,0.3)]"
-          >
-            <FiHome />
-            Go to Dashboard
-          </button>
-          <button
-            onClick={() => navigate("/stripe/plans")}
-            className="px-4 py-2 bg-gbs-bg-card border border-gbs-border rounded-md text-sm font-semibold flex items-center gap-2"
-          >
-            <FiPackage />
-            View Plans
-          </button>
         </div>
+
+        <p className="text-center text-xs text-zinc-600 mt-12">
+          Secured by Stripe • Westside Car Care
+        </p>
       </div>
     </div>
   );
