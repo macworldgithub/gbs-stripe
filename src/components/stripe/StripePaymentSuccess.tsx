@@ -49,7 +49,7 @@ export default function StripePaymentSuccess() {
         };
 
         console.log("✅ Calling POST /payment/checkout with:", checkoutDto);
-        const checkoutResponse = await paymentsApi.createCheckout(checkoutDto);
+        // const checkoutResponse = await paymentsApi.createCheckout(checkoutDto);
 
         // 🔥 4. SECOND API YOU JUST ASKED FOR → POST /user-package
         const userPackageDto = {
