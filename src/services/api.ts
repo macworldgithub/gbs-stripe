@@ -308,6 +308,7 @@ export interface CreateCheckoutDto {
   roleId: string;
   months?: number;
   trial?: boolean;
+  startDate?: string; // ← Added (this is what you need)
 }
 
 export interface CreateCheckoutResponseDto {

@@ -21,15 +21,20 @@ function HomePage() {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const receivedRoleId = urlParams.get("roleId"); // ← Changed from planId
+    // const receivedRoleId = urlParams.get("roleId"); // ← Changed from planId
 
-    console.log("Received roleId from URL:", receivedRoleId); // Debug log
+    // console.log("Received roleId from URL:", receivedRoleId); // Debug log
 
-    if (!receivedRoleId) {
-      setError("No plan ID received. Please select a plan from the app.");
-    } else {
-      setRoleId(receivedRoleId);
-    }
+    // if (!receivedRoleId) {
+    //   setError("No plan ID received. Please select a plan from the app.");
+    // } else {
+    //   setRoleId(receivedRoleId);
+    // }
+    // Hardcoded for testing
+    const hardcodedRoleId = "68677a975fd1bc732890d128";
+
+    setRoleId(hardcodedRoleId);
+    console.log("Using hardcoded roleId:", hardcodedRoleId);
   }, []);
 
   if (error) {

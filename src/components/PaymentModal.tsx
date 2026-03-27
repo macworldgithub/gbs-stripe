@@ -251,7 +251,16 @@ export default function PaymentModal({
 
     try {
       setProcessing(true);
+
       const months = billingCycle === "monthly" ? 1 : 12;
+
+      // ← NEW: Save selected plan so success page knows what to activate
+      const selectedPlan = {
+        roleId: planId,
+        months,
+        trial: false,
+      };
+      localStorage.setItem("pendingPackage", JSON.stringify(selectedPlan));
 
       await stripeService.redirectToCheckout({
         roleId: planId,
@@ -261,6 +270,8 @@ export default function PaymentModal({
     } catch (error: any) {
       console.error("Payment failed:", error);
       alert("Payment failed. Please try again.");
+      // Clear saved data if payment fails
+      localStorage.removeItem("pendingPackage");
     } finally {
       setProcessing(false);
     }
