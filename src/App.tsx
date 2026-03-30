@@ -105,7 +105,6 @@ initializeTestAuth();
 
 function HomePage() {
   const [roleId, setRoleId] = useState<string | null>(null);
-  // const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

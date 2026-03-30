@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FiX, FiCreditCard, FiLock } from "react-icons/fi";
-import { rolesApi, userPackageApi } from "../services/api"; // ← added userPackageApi
+import { rolesApi } from "../services/api";
 import { stripeService } from "../services/stripe";
 
 interface PaymentModalProps {
@@ -46,6 +46,51 @@ export default function PaymentModal({
     }
   };
 
+  // const handlePayment = async () => {
+  //   if (!plan) return;
+
+  //   try {
+  //     setProcessing(true);
+  //     setError(null);
+
+  //     const months = billingCycle === "monthly" ? 1 : 12;
+  //     const now = new Date().toISOString();
+
+  //     // 🔥 POST /user-package — runs RIGHT HERE on button click
+  //     const userPackageDto = {
+  //       role: planId, // ← "role" (not roleId)
+  //       startDate: now,
+  //       months: months,
+  //       trial: false,
+  //     };
+
+  //     console.log("🚀 Calling POST /user-package with:", userPackageDto);
+  //     await userPackageApi.createPackage(userPackageDto);
+
+  //     console.log("✅ Package created successfully via /user-package");
+
+  //     // Optional: still save for success page (safe to keep)
+  //     const selectedPlan = { roleId: planId, months, trial: false };
+  //     localStorage.setItem("pendingPackage", JSON.stringify(selectedPlan));
+
+  //     // Now redirect to Stripe
+  //     await stripeService.redirectToCheckout({
+  //       roleId: planId,
+  //       months,
+  //       trial: false,
+  //     });
+  //   } catch (err: any) {
+  //     console.error("Package creation or payment failed:", err);
+  //     setError(
+  //       err.response?.data?.message ||
+  //         "Failed to create package. Please try again.",
+  //     );
+  //   } finally {
+  //     setProcessing(false);
+  //   }
+  // };
+  // PaymentModal.tsx
+
   const handlePayment = async () => {
     if (!plan) return;
 
@@ -54,42 +99,36 @@ export default function PaymentModal({
       setError(null);
 
       const months = billingCycle === "monthly" ? 1 : 12;
-      const now = new Date().toISOString();
 
-      // 🔥 POST /user-package — runs RIGHT HERE on button click
-      const userPackageDto = {
-        role: planId, // ← "role" (not roleId)
-        startDate: now,
-        months: months,
+      // ✅ ONLY save pending package info - DO NOT create package yet
+      const selectedPlan = {
+        roleId: planId,
+        months,
         trial: false,
       };
-
-      console.log("🚀 Calling POST /user-package with:", userPackageDto);
-      await userPackageApi.createPackage(userPackageDto);
-
-      console.log("✅ Package created successfully via /user-package");
-
-      // Optional: still save for success page (safe to keep)
-      const selectedPlan = { roleId: planId, months, trial: false };
       localStorage.setItem("pendingPackage", JSON.stringify(selectedPlan));
 
-      // Now redirect to Stripe
+      console.log("✅ Pending package saved to localStorage:", selectedPlan);
+
+      // 🔥 Redirect to Stripe Checkout ONLY (no user-package call here)
       await stripeService.redirectToCheckout({
         roleId: planId,
         months,
         trial: false,
       });
     } catch (err: any) {
-      console.error("Package creation or payment failed:", err);
+      console.error("Payment initiation failed:", err);
       setError(
         err.response?.data?.message ||
-          "Failed to create package. Please try again.",
+          "Failed to start payment process. Please try again.",
       );
+
+      // Clean up on failure
+      localStorage.removeItem("pendingPackage");
     } finally {
       setProcessing(false);
     }
   };
-
   const basePrice = plan?.price ? Number(plan.price) : 0;
   const finalPrice =
     billingCycle === "monthly" ? basePrice : Math.round(basePrice * 12 * 0.83);
