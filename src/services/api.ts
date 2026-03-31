@@ -235,7 +235,8 @@ import axios from "axios";
 import type { AxiosInstance, AxiosResponse } from "axios";
 
 // API base configuration
-const API_BASE_URL = "https://gbs.westsidecarcare.com.au";
+// const API_BASE_URL = "https://gbs.westsidecarcare.com.au";
+const API_BASE_URL = "http://localhost:9000";
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -300,7 +301,7 @@ export interface CreateUserPackageDto {
 export interface UpdateUserPackageDto {
   role?: string;
   months?: number;
-  startDate?: string;
+  // startDate?: string;
   trial?: boolean;
 }
 
@@ -355,6 +356,7 @@ export const paymentsApi = {
   createUpdateCheckout: async (
     data: UpdateUserPackageDto,
   ): Promise<CreateCheckoutResponseDto> => {
+    console.log(data);
     const response = await api.post("/payment/update-checkout", data);
     return response.data;
   },
@@ -394,6 +396,10 @@ export const userPackageApi = {
     data: UpdateUserPackageDto,
   ): Promise<any> => {
     const response = await api.put(`/user-package/${id}`, data);
+    return response.data;
+  },
+  patchPackage: async (data: UpdateUserPackageDto): Promise<any> => {
+    const response = await api.patch("/user-package", data);
     return response.data;
   },
 };

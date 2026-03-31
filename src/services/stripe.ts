@@ -20,6 +20,8 @@ export const stripeService = {
     data: UpdateUserPackageDto,
   ): Promise<void> => {
     try {
+      console.log(data);
+
       const response = await paymentsApi.createUpdateCheckout(data);
       window.location.href = response.url;
     } catch (error) {

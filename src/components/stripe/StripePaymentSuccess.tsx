@@ -21,72 +21,58 @@ export default function StripePaymentSuccess() {
       return;
     }
 
-    const activatePackage = async () => {
-      try {
-        setActivating(true);
+   const activatePackage = async () => {
+    try {
+      setActivating(true);
 
-        // 1. Confirm payment success
-        await paymentsApi.getPaymentSuccess(sessionId);
+      await paymentsApi.getPaymentSuccess(sessionId);
 
-        // 2. Get the plan the user actually paid for
-        const pendingStr = localStorage.getItem("pendingPackage");
-        if (!pendingStr) throw new Error("No pending package found");
+      const pendingStr = localStorage.getItem("pendingPackage");
+      if (!pendingStr) throw new Error("No pending package found");
 
-        const pending = JSON.parse(pendingStr) as {
-          roleId: string;
-          months: number;
-          trial: boolean;
-        };
+      const pending = JSON.parse(pendingStr) as {
+        roleId: string;
+        months: number;
+        trial: boolean;
+        isUpgrade?: boolean;     // ← NEW
+      };
 
-        const now = new Date().toISOString();
+      const now = new Date().toISOString();
 
-        // 🔥 3. FIRST API YOU WANTED → POST /payment/checkout
-        const checkoutDto = {
-          roleId: pending.roleId,
-          months: pending.months,
-          trial: pending.trial,
-          startDate: now,
-        };
-
-        console.log("✅ Calling POST /payment/checkout with:", checkoutDto);
-        // const checkoutResponse = await paymentsApi.createCheckout(checkoutDto);
-
-        // 🔥 4. SECOND API YOU JUST ASKED FOR → POST /user-package
+      if (pending.isUpgrade) {
+        // Upgrade flow - you can call update here if needed
+        console.log("🔄 Upgrade flow - skipping createPackage");
+        // If backend already handled upgrade via /payment/update-checkout, you may not need to call anything here
+        // Or call updatePackage if you have the ID
+      } else {
+        // New purchase
         const userPackageDto = {
-          role: pending.roleId, // ← note: "role" (not roleId)
+          role: pending.roleId,
           startDate: now,
           months: pending.months,
           trial: pending.trial,
         };
 
-        console.log("✅ Calling POST /user-package with:", userPackageDto);
-        const packageResponse =
-          await userPackageApi.createPackage(userPackageDto);
-
-        // 5. Refresh active package for UI
-        const latestPackage = await userPackageApi.getActivePackage();
-        setActivePackage(latestPackage);
-
-        console.log(
-          "✅ Package fully activated (both APIs called):",
-          packageResponse,
-        );
-
-        // Clean up
-        localStorage.removeItem("pendingPackage");
-      } catch (err: any) {
-        console.error("Activation failed:", err);
-        setError(
-          "Payment was successful, but package activation failed. Please contact support.",
-        );
-      } finally {
-        setActivating(false);
-        setLoading(false);
+        console.log("✅ Creating new package via POST /user-package");
+        await userPackageApi.createPackage(userPackageDto);
       }
-    };
 
-    activatePackage();
-  }, [sessionId]);
+      // Refresh active package
+      const latestPackage = await userPackageApi.getActivePackage();
+      setActivePackage(latestPackage);
+
+      localStorage.removeItem("pendingPackage");
+    } catch (err: any) {
+      console.error("Activation failed:", err);
+      setError("Payment successful but activation failed.");
+    } finally {
+      setActivating(false);
+      setLoading(false);
+    }
+  };
+
+  activatePackage();
+}, [sessionId]);
 
   // Loading / Activating UI
   if (loading || activating) {

@@ -106,6 +106,7 @@ initializeTestAuth();
 function HomePage() {
   const [roleId, setRoleId] = useState<string | null>(null);
   // const [token, setToken] = useState<string | null>(null);
+  const [isRole, setIsRole] = useState<boolean>(false); // ← NEW
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -113,33 +114,22 @@ function HomePage() {
 
     const receivedRoleId = urlParams.get("roleId");
     const receivedToken = urlParams.get("token");
+    const receivedIsRole = urlParams.get("isRole"); // ← NEW
 
-    console.log("📥 Received roleId from URL:", receivedRoleId);
-    console.log(
-      "📥 Received token from URL:",
-      receivedToken
-        ? "✅ Token present (length: " + receivedToken.length + ")"
-        : "❌ No token",
-    );
+    console.log("📥 Received roleId:", receivedRoleId);
+    console.log("📥 Received isRole:", receivedIsRole);
+    console.log("📥 Received token:", receivedToken ? "present" : "absent");
 
     if (!receivedRoleId) {
       setError("No plan ID (roleId) received. Please open with ?roleId=xxx");
       return;
     }
 
-    if (!receivedToken) {
-      console.warn(
-        "⚠️ No token received in query params. Falling back to localStorage/test token.",
-      );
-    }
-
     setRoleId(receivedRoleId);
-    // setToken(receivedToken);
+    setIsRole(receivedIsRole === "true"); // convert string to boolean
 
-    // 🔥 Important: If token is passed, store it in localStorage so authService can use it
     if (receivedToken) {
       localStorage.setItem("auth_token", receivedToken);
-      console.log("✅ Token saved to localStorage from query param");
     }
   }, []);
   if (error) {
@@ -169,6 +159,8 @@ function HomePage() {
           isOpen={true}
           onClose={() => {}}
           planId={roleId} // ← now fully dynamic
+          //@ts-ignore
+          isRole={isRole}
         />
       )}
     </div>
