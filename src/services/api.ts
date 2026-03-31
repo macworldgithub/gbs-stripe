@@ -235,8 +235,8 @@ import axios from "axios";
 import type { AxiosInstance, AxiosResponse } from "axios";
 
 // API base configuration
-// const API_BASE_URL = "https://gbs.westsidecarcare.com.au";
-const API_BASE_URL = "http://localhost:9000";
+const API_BASE_URL = "https://gbs.westsidecarcare.com.au";
+// const API_BASE_URL = "http://localhost:9000";
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
