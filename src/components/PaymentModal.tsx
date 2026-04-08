@@ -743,8 +743,7 @@ export default function PaymentModal({
   };
 
   const basePrice = plan?.price ? Number(plan.price) : 0;
-  const finalPrice =
-    billingCycle === "monthly" ? basePrice : Math.round(basePrice * 12 * 0.83);
+  const finalPrice = billingCycle === "monthly" ? basePrice / 12 : basePrice;
 
   if (!isOpen) return null;
 
@@ -806,7 +805,7 @@ export default function PaymentModal({
                   onClick={() => setBillingCycle("yearly")}
                   className={`flex-1 py-3.5 rounded-xl font-medium ${billingCycle === "yearly" ? "bg-white shadow text-gray-900" : "text-gray-600"}`}
                 >
-                  Yearly (Save 17%)
+                  Yearly
                 </button>
               </div>
 
