@@ -638,7 +638,7 @@
 //   );
 // }
 import { useState, useEffect } from "react";
-import { FiX, FiCreditCard, FiLock } from "react-icons/fi";
+import {  FiCreditCard, FiLock } from "react-icons/fi";
 import { rolesApi, userPackageApi } from "../services/api";
 import { stripeService } from "../services/stripe";
 
@@ -651,7 +651,7 @@ interface PaymentModalProps {
 
 export default function PaymentModal({
   isOpen,
-  onClose,
+ 
   planId,
   isRole = false,
 }: PaymentModalProps) {
