@@ -754,12 +754,12 @@ export default function PaymentModal({
           <h2 className="text-2xl font-bold text-gray-900">
             {isRole ? "Upgrade Membership" : "Complete Payment"}
           </h2>
-          <button
+          {/* <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
           >
             <FiX className="text-2xl" />
-          </button>
+          </button> */}
         </div>
 
         <div className="p-8">
