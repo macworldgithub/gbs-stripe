@@ -638,7 +638,7 @@
 //   );
 // }
 import { useState, useEffect } from "react";
-import {  FiCreditCard, FiLock } from "react-icons/fi";
+import { FiCreditCard, FiLock } from "react-icons/fi";
 import { rolesApi, userPackageApi } from "../services/api";
 import { stripeService } from "../services/stripe";
 
@@ -651,7 +651,7 @@ interface PaymentModalProps {
 
 export default function PaymentModal({
   isOpen,
- 
+
   planId,
   isRole = false,
 }: PaymentModalProps) {
@@ -687,7 +687,7 @@ export default function PaymentModal({
       setProcessing(true);
       setError(null);
 
-      const months = billingCycle === "monthly" ? 1 : 12;
+      const months = billingCycle === "monthly" ? 1 / 12 : 1;
       const now = new Date().toISOString();
 
       const packageDto = {
