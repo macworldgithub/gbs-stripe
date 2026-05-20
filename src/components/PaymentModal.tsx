@@ -691,7 +691,7 @@ export default function PaymentModal({
       setProcessing(true);
       setError(null);
 
-      const months = billingCycle === "monthly" ? 1 / 12 : 1;
+      const months = billingCycle === "monthly" ? 1 : 12;
 
       if (isRole) {
         // ====================== UPGRADE FLOW ======================
