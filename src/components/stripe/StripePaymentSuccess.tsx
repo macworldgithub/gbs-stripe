@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { FiCheckCircle, FiAward } from "react-icons/fi";
-import { paymentsApi, userPackageApi } from "../../services/api";
+import { paymentsApi, userPackageApi, rolesApi } from "../../services/api";
 
 export default function StripePaymentSuccess() {
   const [searchParams] = useSearchParams();
@@ -39,27 +39,39 @@ export default function StripePaymentSuccess() {
 
         const now = new Date().toISOString();
 
-        if (pending.isUpgrade) {
-          // Upgrade flow - you can call update here if needed
-          console.log("🔄 Upgrade flow - skipping createPackage");
-          // If backend already handled upgrade via /payment/update-checkout, you may not need to call anything here
-          // Or call updatePackage if you have the ID
-        } else {
-          // New purchase
-          const userPackageDto = {
-            role: pending.roleId,
-            startDate: now,
-            months: pending.months,
-            trial: pending.trial,
-          };
+        const userPackageDto = {
+          role: pending.roleId,
+          startDate: now,
+          months: pending.months,
+          trial: pending.trial,
+        };
 
+        if (pending.isUpgrade) {
+          // Upgrade flow - call patchPackage to upgrade user package after payment confirmation
+          console.log("🔄 Upgrading package via PATCH /user-package");
+          await userPackageApi.patchPackage(userPackageDto);
+          console.log("✅ Package upgraded successfully");
+        } else {
+          // New purchase - call createPackage to create user package after payment confirmation
           console.log("✅ Creating new package via POST /user-package");
           await userPackageApi.createPackage(userPackageDto);
+          console.log("✅ Package created successfully");
         }
 
-        // Refresh active package
-        const latestPackage = await userPackageApi.getActivePackage();
-        setActivePackage(latestPackage);
+        // Try to fetch the role information to show the beautiful success card, without hitting 404
+        try {
+          const roleData = await rolesApi.getRoleById(pending.roleId);
+          const durationMonths = pending.months || 1;
+          const calculatedEndDate = new Date();
+          calculatedEndDate.setMonth(calculatedEndDate.getMonth() + Math.ceil(durationMonths));
+
+          setActivePackage({
+            role: roleData,
+            endDate: calculatedEndDate.toISOString(),
+          });
+        } catch (displayErr) {
+          console.warn("Could not load role details for display card, skipping details card:", displayErr);
+        }
 
         localStorage.removeItem("pendingPackage");
       } catch (err: any) {
@@ -121,7 +133,7 @@ export default function StripePaymentSuccess() {
           </div>
           <div>
             <p className="font-bold tracking-widest text-lg">
-              WESTSIDE CAR CARE
+              GBS
             </p>
             <p className="text-xs text-zinc-500 -mt-1">GBS Membership</p>
           </div>
@@ -177,12 +189,7 @@ export default function StripePaymentSuccess() {
               A confirmation email has been sent to your registered email.
             </div>
 
-            <button
-              onClick={() => navigate("/")}
-              className="w-full bg-red-600 hover:bg-red-700 py-4 rounded-2xl font-semibold text-lg"
-            >
-              Go to Dashboard
-            </button>
+
           </div>
         </div>
       </div>
